@@ -8,9 +8,10 @@ services:
     ports:
       - '8080:80'
     volumes:
-      - ./php/php.ini:/usr/local/etc/php/php.ini
-      - ./php/apache/apache2.conf:/etc/apache2/apache2.conf
-      - ./php/apache/logs:/var/log/apache2
+      - ./php/php.ini:/etc/php.ini
+      - ./php/apache/httpd.conf:/etc/httpd/httpd.conf
+      - ./php/apache/logs:/var/log/httpd
+      - ./php/apache/conf.d:/etc/httpd/conf.d
       # - ../MUS/home:/home
       # - ../MUS/var/www/html:/var/www/html
       # - ../MUS/usr/lib64/php/pear/smarty-4.3.2:/usr/lib64/php/pear/smarty
@@ -27,10 +28,16 @@ services:
       - ./src/batch/config.php:/home/demo/batch/news/v2/config.php
       - ./src/vas/ING:/usr/ING
       - ./php/startup.sh:/startup.sh
+      - \\wsl$\Ubuntu\sys\fs\cgroup:/sys/fs/cgroup:ro
     environment:
         TZ: Asia/Tokyo
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
     depends_on:
       - db
+    tty: true
 
   db:
     image: postgres:13.11
