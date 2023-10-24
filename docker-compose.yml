@@ -1,0 +1,120 @@
+version: "3.9"
+
+services:
+  php:
+    container_name: php
+    build:
+      context: ./php
+    ports:
+      - '8080:80'
+    volumes:
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./php/apache/apache2.conf:/etc/apache2/apache2.conf
+      - ./php/apache/logs:/var/log/apache2
+      # - ../MUS/home:/home
+      # - ../MUS/var/www/html:/var/www/html
+      # - ../MUS/usr/lib64/php/pear/smarty-4.3.2:/usr/lib64/php/pear/smarty
+      # - ../MUS/usr/share/php:/usr/share/php
+      - \\wsl$\Ubuntu\home:/home
+      # - G:\MUS\var\www\html\www.nbs-tv.co.jp:/var/www/html/www.nbs-tv.co.jp
+      - \\wsl$\Ubuntu\var\www\html:/var/www/html
+      - \\wsl$\Ubuntu\usr\lib64\php\pear\smarty:/usr/lib64/php/pear/smarty
+      - \\wsl$\Ubuntu\usr\share\php:/usr/share/php
+      - ./src/web/config/config.php:/home/demo/web/demo/configs/config.php
+      - ./src/web/config/smarty.config:/home/demo/web/demo/configs/smarty.config
+      - ./src/web/inc/inc_header.tpl:/home/demo/web/demo/inc/inc_header.tpl
+      - ./src/web/favicon.ico:/home/demo/web/demo/favicon.ico
+      - ./src/batch/config.php:/home/demo/batch/news/v2/config.php
+      - ./src/vas/ING:/usr/ING
+      - ./php/startup.sh:/startup.sh
+    environment:
+        TZ: Asia/Tokyo
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13.11
+    container_name: db
+    # restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: adminmin
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+
+  pgadmin4:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    ports:
+      - 8081:80
+    volumes:
+      - ./pgadmin4-data:/var/lib/pgadmin
+    environment:
+        PGADMIN_DEFAULT_EMAIL: fumiaki.ueda@topcreation.co.jp
+        PGADMIN_DEFAULT_PASSWORD: adminmin
+    depends_on:
+      - db
+      
+  ftpserver:
+    image: stilliard/pure-ftpd
+    container_name: ftpserver
+    ports:
+      - 21:21
+      - 30000-30009:30000-30009
+    volumes: 
+      - "./ftp/data:/home/ftp.demo/"
+      - "./ftp/passwd:/etc/pure-ftpd/passwd"
+      - "./ftp/log:/var/log/pure-ftpd/"
+    environment:
+      PUBLICHOST: localhost
+      FTP_USER_NAME: ftp.demo
+      FTP_USER_PASS: CbrQpmSqErv6
+      FTP_USER_HOME: /home/ftp.demo
+      FTP_PASSIVE_PORTS: 30000:30009
+    # restart: always
+  
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    ports:
+      - target: 8025
+        published: ${MAILPIT_PUBLISHED_PORT:-8025}
+        protocol: tcp
+        mode: host
+    environment:
+      MP_DATA_FILE: /tmp/mailpit.db
+    volumes:
+      - ./mailpit-data:/tmp
+
+  # mysql:
+  #   build:
+  #     context: .
+  #     dockerfile: ./mysql/Dockerfile
+  #   container_name: mysql
+  #   ports:
+  #     - target: 3306
+  #       published: ${DB_PUBLISHED_PORT:-13306}
+  #       protocol: tcp
+  #       mode: host
+  #   volumes:
+  #     - ./mysql/data:/var/lib/mysql
+  #     - ./mysql/my.cnf:/etc/my.cnf
+  #   environment:
+  #     - MYSQL_DATABASE=${DB_DATABASE:-wp}
+  #     - MYSQL_USER=${DB_USERNAME:-phper}
+  #     - MYSQL_PASSWORD=${DB_PASSWORD:-secret}
+  #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}
+
+  # phpmyadmin:
+  #   image: phpmyadmin
+  #   container_name: phpmyadmin
+  #   restart: always
+  #   ports:
+  #     - 8082:80
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  #     - MYSQL_DATABASE=${DB_DATABASE:-wp}
+  #     - MYSQL_USER=${DB_USERNAME:-phper}
+  #     - MYSQL_PASSWORD=${DB_PASSWORD:-secret}
+  #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}
