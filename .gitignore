@@ -1,8 +1,0 @@
-mailpit-data/
-mysql/data/
-pgadmin4-data/
-postgres-data/
-ftp/data/
-ftp/log/
-ftp/passwd/
-php/apache/logs/
