@@ -106,7 +106,7 @@ RUN yum install -y epel-release \
     && yum install -y php-pecl-ssh2
 
 # Apacheインストール
-RUN yum install -y httpd
+RUN yum install -y httpd mod_ssl
 
 RUN yum install -y git ftp wget vim
 
