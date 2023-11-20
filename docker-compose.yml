@@ -7,30 +7,49 @@ services:
       context: ./php
     ports:
       - '8080:80'
+      - '443:443'
     volumes:
-      - ./php/php.ini:/usr/local/etc/php/php.ini
-      - ./php/apache/apache2.conf:/etc/apache2/apache2.conf
-      - ./php/apache/logs:/var/log/apache2
+      - ./php/php.ini:/etc/php.ini
+      - ./php/apache/httpd.conf:/etc/httpd/httpd.conf
+      - ./php/apache/logs:/var/log/httpd
+      - ./php/apache/conf.d:/etc/httpd/conf.d
+      - ./php/apache/cert/server.crt:/etc/pki/tls/certs/localhost.crt
+      - ./php/apache/cert/server.key:/etc/pki/tls/private/localhost.key
       # - ../MUS/home:/home
       # - ../MUS/var/www/html:/var/www/html
       # - ../MUS/usr/lib64/php/pear/smarty-4.3.2:/usr/lib64/php/pear/smarty
       # - ../MUS/usr/share/php:/usr/share/php
-      - \\wsl$\Ubuntu\home:/home
+      # - \\wsl$\Ubuntu\home:/home
+      - G:\MUS\home:/home
+      # - G:\MUS\home\sasaru_test:/home/sasaru_test
+      # - G:\MUS\home\sasaru:/home/sasaru
+      # - G:\MUS\home\demo:/home/demo
+      # - G:\MUS\home\tvi:/home/tvi
+      # - ./src/tvi/configs:/home/tvi/configs
+      - ./src/tvi/web/config/smarty.config:/home/tvi/web/configs/smarty.config
+      - ./src/tvi/web/inc/inc_header.tpl:/home/tvi/web/inc/inc_header.tpl
+      - ./src/tvi/web/favicon.ico:/home/demo/web/demo/favicon.ico
       # - G:\MUS\var\www\html\www.nbs-tv.co.jp:/var/www/html/www.nbs-tv.co.jp
       - \\wsl$\Ubuntu\var\www\html:/var/www/html
       - \\wsl$\Ubuntu\usr\lib64\php\pear\smarty:/usr/lib64/php/pear/smarty
       - \\wsl$\Ubuntu\usr\share\php:/usr/share/php
-      - ./src/web/config/config.php:/home/demo/web/demo/configs/config.php
-      - ./src/web/config/smarty.config:/home/demo/web/demo/configs/smarty.config
-      - ./src/web/inc/inc_header.tpl:/home/demo/web/demo/inc/inc_header.tpl
-      - ./src/web/favicon.ico:/home/demo/web/demo/favicon.ico
-      - ./src/batch/config.php:/home/demo/batch/news/v2/config.php
+      - ./src/demo/web/config/config.php:/home/demo/web/demo/configs/config.php
+      - ./src/demo/web/config/smarty.config:/home/demo/web/demo/configs/smarty.config
+      - ./src/demo/web/inc/inc_header.tpl:/home/demo/web/demo/inc/inc_header.tpl
+      - ./src/demo/web/favicon.ico:/home/demo/web/demo/favicon.ico
+      - ./src/demo/batch/config.php:/home/demo/batch/news/v2/config.php
       - ./src/vas/ING:/usr/ING
       - ./php/startup.sh:/startup.sh
+      - \\wsl$\Ubuntu\sys\fs\cgroup:/sys/fs/cgroup:ro
     environment:
         TZ: Asia/Tokyo
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
     depends_on:
       - db
+    tty: true
 
   db:
     image: postgres:13.11
@@ -38,6 +57,7 @@ services:
     # restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: adminmin
+      TZ: Asia/Tokyo
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
@@ -63,14 +83,14 @@ services:
       - 21:21
       - 30000-30009:30000-30009
     volumes: 
-      - "./ftp/data:/home/ftp.demo/"
+      - "./ftp/data:/home/ftp.local/"
       - "./ftp/passwd:/etc/pure-ftpd/passwd"
       - "./ftp/log:/var/log/pure-ftpd/"
     environment:
       PUBLICHOST: localhost
-      FTP_USER_NAME: ftp.demo
-      FTP_USER_PASS: CbrQpmSqErv6
-      FTP_USER_HOME: /home/ftp.demo
+      FTP_USER_NAME: ftp.local
+      FTP_USER_PASS: adminmin
+      FTP_USER_HOME: /home/ftp.local
       FTP_PASSIVE_PORTS: 30000:30009
     # restart: always
   
