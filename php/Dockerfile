@@ -1,7 +1,7 @@
 #############################
 #          OSの設定          #
 #############################
-ARG SYSBASE=almalinux:9
+ARG SYSBASE=almalinux:9.2
 FROM ${SYSBASE} as system-build
 
 RUN mkdir /mnt/sys-root; \

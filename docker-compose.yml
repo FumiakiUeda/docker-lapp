@@ -75,10 +75,10 @@ services:
         PGADMIN_DEFAULT_PASSWORD: adminmin
     depends_on:
       - db
-      
-  ftpserver:
+
+  ftpsrv:
     image: stilliard/pure-ftpd
-    container_name: ftpserver
+    container_name: ftpsrv
     ports:
       - 21:21
       - 30000-30009:30000-30009
@@ -87,13 +87,19 @@ services:
       - "./ftp/passwd:/etc/pure-ftpd/passwd"
       - "./ftp/log:/var/log/pure-ftpd/"
     environment:
-      PUBLICHOST: localhost
+      PUBLICHOST: ftpsrv
       FTP_USER_NAME: ftp.local
       FTP_USER_PASS: adminmin
       FTP_USER_HOME: /home/ftp.local
       FTP_PASSIVE_PORTS: 30000:30009
+      ADDED_FLAGS: -O w3c:/var/log/pure-ftpd/transfer.log --tls 1
+      TLS_CN: localhost
+      TLS_ORG: TopCreation
+      TLS_C: JP
+      # TLS_USE_DSAPRAM: true
+      TZ: Asia/Tokyo
     # restart: always
-  
+
   sftpsrv:
     image: atmoz/sftp
     container_name: sftpsrv
@@ -113,37 +119,6 @@ services:
         mode: host
     environment:
       MP_DATA_FILE: /tmp/mailpit.db
+      TZ: Asia/Tokyo
     volumes:
       - ./mailpit-data:/tmp
-
-  # mysql:
-  #   build:
-  #     context: .
-  #     dockerfile: ./mysql/Dockerfile
-  #   container_name: mysql
-  #   ports:
-  #     - target: 3306
-  #       published: ${DB_PUBLISHED_PORT:-13306}
-  #       protocol: tcp
-  #       mode: host
-  #   volumes:
-  #     - ./mysql/data:/var/lib/mysql
-  #     - ./mysql/my.cnf:/etc/my.cnf
-  #   environment:
-  #     - MYSQL_DATABASE=${DB_DATABASE:-wp}
-  #     - MYSQL_USER=${DB_USERNAME:-phper}
-  #     - MYSQL_PASSWORD=${DB_PASSWORD:-secret}
-  #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}
-
-  # phpmyadmin:
-  #   image: phpmyadmin
-  #   container_name: phpmyadmin
-  #   restart: always
-  #   ports:
-  #     - 8082:80
-  #   environment:
-  #     - PMA_ARBITRARY=1
-  #     - MYSQL_DATABASE=${DB_DATABASE:-wp}
-  #     - MYSQL_USER=${DB_USERNAME:-phper}
-  #     - MYSQL_PASSWORD=${DB_PASSWORD:-secret}
-  #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}

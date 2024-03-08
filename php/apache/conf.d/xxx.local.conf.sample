@@ -1,22 +1,23 @@
 <VirtualHost *:80>
 	ServerAdmin fumiaki.ueda@topcreation.co.jp
-	DocumentRoot /home/rkc/web
-    ServerName rkc.ueda
-	ErrorLog logs/rkc.ueda_error_log
-	CustomLog logs/rkc.ueda_access_log combined
-    <Directory /home/rkc/web>
-		Options Indexes
+	DocumentRoot /home/xxx/web
+    ServerName xxx.local
+	ErrorLog logs/xxx.local_error_log
+	CustomLog logs/xxx.local_access_log combined
+    <Directory /home/xxx/web>
+		Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
     </Directory>
 </VirtualHost>
 
+# SSL化を入れる場合
 <VirtualHost *:443>
-    ServerName rkc.ueda:443
-    DocumentRoot "/home/rkc/web"
-    ErrorLog logs/ssl_rkc.ueda_error_log
-    CustomLog logs/ssl_rkc.ueda_access_log combined
-    <Directory /home/rkc/web>
+    ServerName xxx.local:443
+    DocumentRoot "/home/xxx/web"
+    ErrorLog logs/ssl_xxx.local_error_log
+    CustomLog logs/ssl_xxx.local_access_log combined
+    <Directory /home/xxx/web>
         AllowOverride All
         Require all granted
     </Directory>
@@ -35,6 +36,6 @@
     BrowserMatch "MSIE [2-5]" \
             nokeepalive ssl-unclean-shutdown \
             downgrade-1.0 force-response-1.0
-    CustomLog logs/ssl_request_log \
+    CustomLog logs/ssl_xxx.local-request_log \
             "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 </VirtualHost>
