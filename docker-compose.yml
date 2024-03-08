@@ -94,6 +94,15 @@ services:
       FTP_PASSIVE_PORTS: 30000:30009
     # restart: always
   
+  sftpsrv:
+    image: atmoz/sftp
+    container_name: sftpsrv
+    volumes:
+        - ./sftp:/home/sftp.local
+    ports:
+        - "2222:22"
+    command: sftp.local:adminmin:1001
+
   mailpit:
     image: axllent/mailpit
     container_name: mailpit
