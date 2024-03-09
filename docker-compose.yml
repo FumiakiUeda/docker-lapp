@@ -1,78 +1,65 @@
 version: "3.9"
 
 services:
+  httpd:
+    container_name: httpd
+    build:
+      context: ./httpd
+    ports:
+      - ${HTTP_PUBLISHED_PORT:-80}:80
+      - ${HTTPS_PUBLISHED_PORT:-443}:443
+    volumes:
+      - ./httpd/httpd.conf:/etc/httpd/conf/httpd.conf
+      - ./httpd/logs:/var/log/httpd
+      - ./httpd/conf.d:/etc/httpd/conf.d
+      - ./httpd/startup.sh:/startup.sh
+      - ./cert/server.crt:/etc/pki/tls/certs/localhost.crt
+      - ./cert/server.key:/etc/pki/tls/private/localhost.key
+      - ${HOME_DIR:-G:\MUS\home}:/home
+      - ${HTML_DIR:-G:\MUS\var\www\html}:/var/www/html
+      - ${SMARTY_DIR:-G:\MUS\usr\lib64\php\pear\smarty}:/usr/lib64/php/pear/smarty
+      - ${SHAREPHP_DIR:-G:\MUS\usr\share\php}:/usr/share/php
+    environment:
+      TZ: Asia/Tokyo
+    depends_on:
+      - php
+      - db
+
   php:
     container_name: php
     build:
       context: ./php
-    ports:
-      - '8080:80'
-      - '443:443'
     volumes:
-      - ./php/php.ini:/etc/php.ini
-      - ./php/apache/httpd.conf:/etc/httpd/httpd.conf
-      - ./php/apache/logs:/var/log/httpd
-      - ./php/apache/conf.d:/etc/httpd/conf.d
-      - ./php/apache/cert/server.crt:/etc/pki/tls/certs/localhost.crt
-      - ./php/apache/cert/server.key:/etc/pki/tls/private/localhost.key
-      # - ../MUS/home:/home
-      # - ../MUS/var/www/html:/var/www/html
-      # - ../MUS/usr/lib64/php/pear/smarty-4.3.2:/usr/lib64/php/pear/smarty
-      # - ../MUS/usr/share/php:/usr/share/php
-      # - \\wsl$\Ubuntu\home:/home
-      - G:\MUS\home:/home
-      # - G:\MUS\home\sasaru_test:/home/sasaru_test
-      # - G:\MUS\home\sasaru:/home/sasaru
-      # - G:\MUS\home\demo:/home/demo
-      # - G:\MUS\home\tvi:/home/tvi
-      # - ./src/tvi/configs:/home/tvi/configs
-      - ./src/tvi/web/config/smarty.config:/home/tvi/web/configs/smarty.config
-      - ./src/tvi/web/inc/inc_header.tpl:/home/tvi/web/inc/inc_header.tpl
-      - ./src/tvi/web/favicon.ico:/home/demo/web/demo/favicon.ico
-      # - G:\MUS\var\www\html\www.nbs-tv.co.jp:/var/www/html/www.nbs-tv.co.jp
-      - \\wsl$\Ubuntu\var\www\html:/var/www/html
-      - \\wsl$\Ubuntu\usr\lib64\php\pear\smarty:/usr/lib64/php/pear/smarty
-      - \\wsl$\Ubuntu\usr\share\php:/usr/share/php
-      - ./src/demo/web/config/config.php:/home/demo/web/demo/configs/config.php
-      - ./src/demo/web/config/smarty.config:/home/demo/web/demo/configs/smarty.config
-      - ./src/demo/web/inc/inc_header.tpl:/home/demo/web/demo/inc/inc_header.tpl
-      - ./src/demo/web/favicon.ico:/home/demo/web/demo/favicon.ico
-      - ./src/demo/batch/config.php:/home/demo/batch/news/v2/config.php
-      - ./src/vas/ING:/usr/ING
-      - ./php/startup.sh:/startup.sh
-      - \\wsl$\Ubuntu\sys\fs\cgroup:/sys/fs/cgroup:ro
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ${HOME_DIR:-G:\MUS\home}:/home
+      - ${HTML_DIR:-G:\MUS\var\www\html}:/var/www/html
+      - ${SMARTY_DIR:-G:\MUS\usr\lib64\php\pear\smarty}:/usr/lib64/php/pear/smarty
+      - ${SHAREPHP_DIR:-G:\MUS\usr\share\php}:/usr/share/php
     environment:
-        TZ: Asia/Tokyo
-    cap_add:
-      - SYS_ADMIN
-    security_opt:
-      - seccomp:unconfined
-    depends_on:
-      - db
-    tty: true
+      TZ: Asia/Tokyo
 
   db:
-    image: postgres:13.11
+    image: postgres:13.11-alpine
     container_name: db
-    # restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: adminmin
-      TZ: Asia/Tokyo
+    ports:
+      - ${POSTGRES_PUBLISHED_PORT:-5432}:5432
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
-    ports:
-      - '5433:5432'
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASS:-adminmin}
+      TZ: Asia/Tokyo
 
   pgadmin4:
     image: dpage/pgadmin4
     container_name: pgadmin4
     ports:
-      - 8081:80
+      - ${PGADMIN_PUBLISHED_PORT:-8080}:80
     volumes:
       - ./pgadmin4-data:/var/lib/pgadmin
     environment:
-        PGADMIN_DEFAULT_EMAIL: fumiaki.ueda@topcreation.co.jp
-        PGADMIN_DEFAULT_PASSWORD: adminmin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-demo.digicon@topcreation.co.jp}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASS:-adminmin}
+      TZ: Asia/Tokyo
     depends_on:
       - db
 
@@ -80,34 +67,35 @@ services:
     image: stilliard/pure-ftpd
     container_name: ftpsrv
     ports:
-      - 21:21
-      - 30000-30009:30000-30009
+      - ${FTP_CTRL_PORT:-21}:21
+      - ${FTP_PASV_MIN_PORT:-50000}-${FTP_PASV_MAX_PORT:-50009}:${FTP_PASV_MIN_PORT:-50000}-${FTP_PASV_MAX_PORT:-50009}
     volumes: 
-      - "./ftp/data:/home/ftp.local/"
-      - "./ftp/passwd:/etc/pure-ftpd/passwd"
-      - "./ftp/log:/var/log/pure-ftpd/"
+      - ./ftp/data:${FTP_USER_HOME:-/home/ftpuser}
+      - ./ftp/passwd:/etc/pure-ftpd/passwd
+      - ./ftp/log:/var/log/pure-ftpd/
+      - ./cert:/etc/ssl/private
     environment:
       PUBLICHOST: ftpsrv
-      FTP_USER_NAME: ftp.local
-      FTP_USER_PASS: adminmin
-      FTP_USER_HOME: /home/ftp.local
-      FTP_PASSIVE_PORTS: 30000:30009
-      ADDED_FLAGS: -O w3c:/var/log/pure-ftpd/transfer.log --tls 1
+      FTP_USER_NAME: ${FTP_USER_NAME:-ftpuser}
+      FTP_USER_PASS: ${FTP_USER_PASS:-adminmin}
+      FTP_USER_HOME: ${FTP_USER_HOME:-/home/ftpuser}
+      FTP_PASSIVE_PORTS: ${FTP_PASV_MIN_PORT:-50000}:${FTP_PASV_MAX_PORT:-50009}
+      ADDED_FLAGS: -O w3c:/var/log/pure-ftpd/transfer.log --tls 3
       TLS_CN: localhost
       TLS_ORG: TopCreation
       TLS_C: JP
-      # TLS_USE_DSAPRAM: true
       TZ: Asia/Tokyo
-    # restart: always
 
   sftpsrv:
     image: atmoz/sftp
     container_name: sftpsrv
     volumes:
-        - ./sftp:/home/sftp.local
+      - ./sftp:/home/${SFTP_USER_NAME:-sftpuser}
     ports:
-        - "2222:22"
-    command: sftp.local:adminmin:1001
+      - ${SFTP_PUBLISHED_PORT:-22}:22
+    command: ${SFTP_USER_NAME:-sftpuser}:${SFTP_USER_PASS:-adminmin}:1001
+    environment:
+      TZ: Asia/Tokyo
 
   mailpit:
     image: axllent/mailpit
@@ -117,8 +105,8 @@ services:
         published: ${MAILPIT_PUBLISHED_PORT:-8025}
         protocol: tcp
         mode: host
+    volumes:
+      - ./mailpit-data:/tmp
     environment:
       MP_DATA_FILE: /tmp/mailpit.db
       TZ: Asia/Tokyo
-    volumes:
-      - ./mailpit-data:/tmp
