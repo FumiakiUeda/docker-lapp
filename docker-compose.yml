@@ -78,7 +78,7 @@ services:
       PUBLICHOST: ftpsrv
       FTP_USER_NAME: ${FTP_USER_NAME:-ftpuser}
       FTP_USER_PASS: ${FTP_USER_PASS:-adminmin}
-      FTP_USER_HOME: ${FTP_USER_HOME:-/home/ftpuser}
+      FTP_USER_HOME: /home/${FTP_USER_NAME:-ftpuser}
       FTP_PASSIVE_PORTS: ${FTP_PASV_MIN_PORT:-50000}:${FTP_PASV_MAX_PORT:-50009}
       ADDED_FLAGS: -O w3c:/var/log/pure-ftpd/transfer.log --tls 3
       TLS_CN: localhost

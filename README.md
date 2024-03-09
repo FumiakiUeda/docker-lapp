@@ -1,8 +1,27 @@
 # DC-MAXs on Docker
 
+## 目次
+
+1. [概要](#概要)
+1. [Docker導入のメリット](#docker導入のメリット)
+1. [はじめる前に](#はじめる前に)
+1. [コンテナサービス一覧](#コンテナサービス一覧)
+1. [使い方](#使い方)
+    1. [事前準備](#事前準備)
+    1. [コンテナ操作](#コンテナ操作)
+        1. [コンテナ起動](#コンテナ起動)
+        1. [コンテナ停止](#コンテナ停止)
+        1. [コンテナ削除](#コンテナ削除)
+        1. [コンテナ内でコマンドを実行する](#コンテナ内でコマンドを実行する)
+1. [Q&A](#qa)
+
 ## 概要
 
-このリポジトリは、コンテナアプリケーション開発プラットフォームであるDockerを利用してDC-MAXsのローカル環境を作成するためのリポジトリである。
+このリポジトリは、コンテナアプリケーション開発プラットフォームであるDockerを利用して、DC-MAXsをローカルで動作させるためのLAPP環境を作成するためのものである。
+
+## Docker導入のメリット
+
+[Docker導入のすすめ](./doc/Docker導入のすすめ.md) を参照。
 
 ## はじめる前に
 
@@ -10,70 +29,66 @@
 
 具体的なインストール方法についてはわかりやすい記事や公式のドキュメントがあるため割愛する。
 
-[Windows に Docker Desktop をインストール — Docker-docs-ja 19.03 ドキュメント](https://docs.docker.jp/docker-for-windows/install.html)
+[Docker Desktop for Windows インストール - Zenn](https://zenn.dev/seiya0/articles/tech-docker-desktop-for-win-install)
+
+## コンテナサービス一覧
+
+[コンテナサービス一覧](./doc/コンテナサービス一覧.md) を参照。
 
 ## 使い方
 
-### コンテナ起動
+### 事前準備
 
-1. 本リポジトリのルートディレクトリ（docker-compose.ymlと同階層）でコマンドプロンプトやPowerShellを開く
+1. 本リポジトリのルートディレクトリにある`.env.example-windows`または`.env.example-wsl`をコピーし、`.env`にリネームする。
+1. `.env`の内容を環境に合わせて変更する。
+    1. ファイル内の変数の意味については [.envファイルの環境変数について](./doc/envファイルの環境変数について.md) にて解説している。
+
+### コンテナ操作
+
+各サービスが入ったコンテナまとめて操作する。
+
+#### コンテナ起動
+
+1. 本リポジトリのルートディレクトリ（docker-compose.ymlと同階層）でコマンドプロンプトあるいはPowerShellを開く
 1. 下記のコマンドを入力し実行する（コンテナイメージのプル・ビルドおよび起動が行われる）
 
 ```bash
 docker compose up -d
 ```
+※初回のみビルドが行われるため時間がかかる
 
-### コンテナ停止
+#### コンテナ停止
 
 ```bash
 docker compose stop
 ```
 
-### コンテナ削除
+#### コンテナ削除
 
 ```bash
 docker compose down
 ```
 
-### docker composeでエラーになる場合
+#### コンテナ内でコマンドを実行する
 
-以下のようなエラーになることがある。
+phpコマンド等を実行するためにコンテナ内に入る場合は以下のコマンドで入ることができる。
 
-```shell
-[+] Building 12.7s (4/4) FINISHED                                                                        docker:default
- => [php internal] load .dockerignore                                                                              0.1s
- => => transferring context: 2B                                                                                    0.0s
- => [php internal] load build definition from Dockerfile                                                           0.1s
- => => transferring dockerfile: 5.34kB                                                                             0.0s
- => ERROR [php internal] load metadata for docker.io/library/almalinux:9                                          12.5s
- => [php auth] library/almalinux:pull token for registry-1.docker.io                                               0.0s
-------
- > [php internal] load metadata for docker.io/library/almalinux:9:
-------
-failed to solve: almalinux:9: failed to authorize: failed to fetch oauth token: Post "https://auth.docker.io/token": dial tcp 54.198.86.24:443: connectex: No connection could be made because the target machine actively refused it.
+```bash
+docker compose exec [サービス名] bash
+
+# 例: appコンテナに入る
+docker compose exec app bash
 ```
 
-このエラーはプロキシ環境に起因するものであり、通常であればDocker Desktopにプロキシの設定を入れることで解決できるはずなのだが、UHB回線ではどうやら難しい模様である。
-諸々調べた結果、根本的な解決ではないが、エラーになったイメージを以下のように事前にプルしておくことで回避が可能。
+もしくは、1行で終わるコマンドを実行したいだけ場合はコンテナ内に入らなくても、以下のコマンドでも標準出力を受け取ることができる。
 
-今回はエラーの通り`load metadata for docker.io/library/almalinux:9`とAlmalinuxの読み込みが出来なかったため、以下のようにプルしておく。
+```bash
+docker compose exec [サービス名] [コマンド]
 
-```shell
-docker pull docker.io/library/almalinux:9
+# 例: appコンテナのホームディレクトリのファイル一覧を表示する
+docker compose exec app ls /home -lah
 ```
 
-その後にビルドをやり直すことで成功すると思われる。
+## Q&A
 
-```shell
-docker compose build
-```
-
-### FTPユーザーの追加方法
-```shell
-docker compose exec ftpsrv bash
-
-pure-pw useradd ftp.xxx -f /etc/pure-ftpd/passwd/pureftpd.passwd -m -u ftpuser -d /home/ftpusers/ftp.xxx
-```
-```yml
-      - "G:/MUS/var/www/html/www.uhb.jp:/home/ftp.uhb/"
-```
+[Q&A](./doc/Q&A.md) を参照。
