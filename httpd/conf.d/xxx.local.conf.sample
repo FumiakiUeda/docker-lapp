@@ -1,0 +1,41 @@
+<VirtualHost *:80>
+	ServerAdmin fumiaki.ueda@topcreation.co.jp
+	DocumentRoot /home/xxx/web
+    ServerName xxx.local
+	ErrorLog logs/xxx.local_error_log
+	CustomLog logs/xxx.local_access_log combined
+    <Directory /home/xxx/web>
+		Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+# SSL化を入れる場合
+<VirtualHost *:443>
+    ServerName xxx.local:443
+    DocumentRoot /home/xxx/web
+    ErrorLog logs/ssl_xxx.local_error_log
+    CustomLog logs/ssl_xxx.local_access_log combined
+    <Directory /home/xxx/web>
+        AllowOverride All
+        Require all granted
+    </Directory>
+    SSLEngine on
+    SSLHonorCipherOrder on
+    SSLCipherSuite PROFILE=SYSTEM
+    SSLProxyCipherSuite PROFILE=SYSTEM
+    SSLCertificateFile /etc/pki/tls/certs/localhost.crt
+    SSLCertificateKeyFile /etc/pki/tls/private/localhost.key
+    <FilesMatch "\.(cgi|shtml|phtml|php)$">
+        SSLOptions +StdEnvVars
+    </FilesMatch>
+    <Directory "/var/www/cgi-bin">
+        SSLOptions +StdEnvVars
+    </Directory>
+    BrowserMatch "MSIE [2-5]" \
+            nokeepalive ssl-unclean-shutdown \
+            downgrade-1.0 force-response-1.0
+    CustomLog logs/ssl_xxx.local-request_log \
+            "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+</VirtualHost>
