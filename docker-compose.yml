@@ -1,18 +1,18 @@
 version: "3.9"
 
 services:
-  httpd:
-    container_name: httpd
+  web:
+    container_name: web
     build:
-      context: ./httpd
+      context: ./web
     ports:
       - ${HTTP_PUBLISHED_PORT:-80}:80
       - ${HTTPS_PUBLISHED_PORT:-443}:443
     volumes:
-      - ./httpd/httpd.conf:/etc/httpd/conf/httpd.conf
-      - ./httpd/logs:/var/log/httpd
-      - ./httpd/conf.d:/etc/httpd/conf.d
-      - ./httpd/startup.sh:/startup.sh
+      - ./web/httpd.conf:/etc/httpd/conf/httpd.conf
+      - ./web/logs:/var/log/httpd
+      - ./web/conf.d:/etc/httpd/conf.d
+      - ./web/startup.sh:/startup.sh
       - ./cert/server.crt:/etc/pki/tls/certs/localhost.crt
       - ./cert/server.key:/etc/pki/tls/private/localhost.key
       - ${HOME_DIR:-G:\MUS\home}:/home
@@ -22,15 +22,15 @@ services:
     environment:
       TZ: Asia/Tokyo
     depends_on:
-      - php
+      - app
       - db
 
-  php:
-    container_name: php
+  app:
+    container_name: app
     build:
-      context: ./php
+      context: ./app
     volumes:
-      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./app/php.ini:/usr/local/etc/php/php.ini
       - ${HOME_DIR:-G:\MUS\home}:/home
       - ${HTML_DIR:-G:\MUS\var\www\html}:/var/www/html
       - ${SMARTY_DIR:-G:\MUS\usr\lib64\php\pear\smarty}:/usr/lib64/php/pear/smarty
@@ -78,7 +78,7 @@ services:
       PUBLICHOST: ftpsrv
       FTP_USER_NAME: ${FTP_USER_NAME:-ftpuser}
       FTP_USER_PASS: ${FTP_USER_PASS:-adminmin}
-      FTP_USER_HOME: ${FTP_USER_HOME:-/home/ftpuser}
+      FTP_USER_HOME: /home/${FTP_USER_NAME:-ftpuser}
       FTP_PASSIVE_PORTS: ${FTP_PASV_MIN_PORT:-50000}:${FTP_PASV_MAX_PORT:-50009}
       ADDED_FLAGS: -O w3c:/var/log/pure-ftpd/transfer.log --tls 3
       TLS_CN: localhost
