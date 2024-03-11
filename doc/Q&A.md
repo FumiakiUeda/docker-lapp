@@ -95,6 +95,44 @@ WSL2のプロセスがメモリを大量に使用している状態。
 
 ホストマシンのWindowsとDockerのLinuxの間でファイルシステムが根本的に違うことにより、ファイルを読み込む度に変換が発生し、読み込みが多い処理では遅くなってしまう。
 
-WSL内にソースコードを配置すると改善する。（WSLは通常の場合Cドライブにマウントされているため、WSLに移動すると外付けSSDから出てしまう。Gドライブにマウントし直すなど容量などには注意）
+下記記事のようにWSL内にソースコードを配置すると改善する。
 
-[「WindowsでDockerを動かしたら遅かった😥」を解決する方法をまとめました。 - Zenn](https://zenn.dev/conbrio/articles/fcf937c4049132)
+[WindowsでDockerを使う時、正しくファイル配置しないと激重になるので注意 #初心者 - Qiita](https://qiita.com/minato-naka/items/84508472c04f628e576e)
+
+※WSLは通常の場合Cドライブにマウントされているため、WSLに移動すると**外付けSSDから出てしまう**。下記記事などを参考にGドライブにマウントし直すなど容量などには十分注意が必要）
+
+[Ubuntu(WSL2)をCドライブからDドライブへ引越す - Zenn](https://zenn.dev/shittoku_xxx/articles/066cfd072d87a1)
+
+## Dockerコマンドを実行するとエラーになる
+
+下記エラーの場合は単にDockerエンジンが起動していないだけなのでDockerを起動すれば解決する。
+
+```bash
+docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+[3854] Failed to execute script docker-compose
+```
+
+それ以外のエラーの場合は大抵Dockerの再起動かWSLの再起動で改善する。
+
+Dockerの再起動はタスクトレイのDockerアイコンを右クリック、「Restart」で再起動できる。
+
+WSLの再起動は下記コマンドで可能（シャットダウンのコマンドだが自動で再立ち上げが行われる）。
+
+```bash
+wsl --shutdown
+```
+
+## DockerとWSLの違いがわからない
+
+WSLは名前の通りLinuxのプログラムをWindows10/11およびWindowsServer上で実行するための仕組みである。
+
+Dockerはあくまでコンテナ仮想化ソフトウェアであり、WSLと同一ではない。
+WSLはWindowsのコンポーネントであり、言うなればLinuxエミュレーターであるが、Dockerはマシン上に仮想の環境を作り開発を便利にするエンジンである。
+
+WSLはほぼ別のOSをインストールしているのに感覚が近いが、Dockerは厳密にはOSではなくコンテナ環境である。OSに似た挙動を取ることも多いが、WSLやVMなどよりもホストマシンとの共有部分が多く軽量である。
+
+今回のDockerはWSL上で動くため、最終的な形としてはWindowsの上にWSL、その上にDockerエンジン、さらにその上にコンテナということになる。
+
+そのためDockerコンテナを仮想OSとして使うのは本来のDockerの使い方ではないので注意されたい。
+
+参考：[備忘録 - WSL、Dockerの関係性について #Docker - Qiita](https://qiita.com/takmot/items/2274d6cdf648eb135a18)
