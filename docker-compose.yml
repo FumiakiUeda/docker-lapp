@@ -31,7 +31,6 @@ services:
       context: ./app
     volumes:
       - ./app/php.ini:/usr/local/etc/php/php.ini
-      - ./app/www.conf:/usr/local/etc/php-fpm.d/www.conf
       - ${HOME_DIR:-G:\MUS\home}:/home
       - ${HTML_DIR:-G:\MUS\var\www\html}:/var/www/html
       - ${SMARTY_DIR:-G:\MUS\usr\lib64\php\pear\smarty}:/usr/lib64/php/pear/smarty
