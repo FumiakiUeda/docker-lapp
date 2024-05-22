@@ -16,7 +16,12 @@ RUN apk update \
     zlib-dev \
     libpng-dev \
     libpq-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     autoconf
+
+RUN docker-php-ext-configure \
+    gd --with-freetype --with-jpeg
 
 RUN docker-php-ext-install \
     gd \
