@@ -16,7 +16,16 @@ RUN apk update \
     zlib-dev \
     libpng-dev \
     libpq-dev \
+    libjpeg-turbo-dev \
+    libssh2-dev \
+    build-base \
+    freetype-dev \
     autoconf
+
+RUN pecl install ssh2-1.4.1
+
+RUN docker-php-ext-configure \
+    gd --with-freetype --with-jpeg
 
 RUN docker-php-ext-install \
     gd \
@@ -25,6 +34,9 @@ RUN docker-php-ext-install \
     pgsql \
     pdo_pgsql \
     sockets
+
+RUN docker-php-ext-enable \
+    ssh2
 
 COPY ./mailpit_install.sh /mailpit_install.sh
 RUN /mailpit_install.sh
