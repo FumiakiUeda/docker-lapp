@@ -1,9 +1,9 @@
 <VirtualHost *:80>
 	ServerAdmin fumiaki.ueda@topcreation.co.jp
 	DocumentRoot /home/xxx/web
-    ServerName xxx.local
-	ErrorLog logs/xxx.local_error_log
-	CustomLog logs/xxx.local_access_log combined
+    ServerName xxx.dev.local
+	ErrorLog logs/xxx.dev.local_error_log
+	CustomLog logs/xxx.dev.local_access_log combined
     <Directory /home/xxx/web>
 		Options Indexes FollowSymLinks
         AllowOverride All
@@ -13,10 +13,10 @@
 
 # SSL化を入れる場合
 <VirtualHost *:443>
-    ServerName xxx.local:443
+    ServerName xxx.dev.local:443
     DocumentRoot /home/xxx/web
-    ErrorLog logs/ssl_xxx.local_error_log
-    CustomLog logs/ssl_xxx.local_access_log combined
+    ErrorLog logs/ssl_xxx.dev.local_error_log
+    CustomLog logs/ssl_xxx.dev.local_access_log combined
     <Directory /home/xxx/web>
         AllowOverride All
         Require all granted
@@ -36,6 +36,6 @@
     BrowserMatch "MSIE [2-5]" \
             nokeepalive ssl-unclean-shutdown \
             downgrade-1.0 force-response-1.0
-    CustomLog logs/ssl_xxx.local-request_log \
+    CustomLog logs/ssl_xxx.dev.local-request_log \
             "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 </VirtualHost>
