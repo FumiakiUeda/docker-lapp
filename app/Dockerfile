@@ -18,6 +18,7 @@ RUN apk update \
     libpq-dev \
     libjpeg-turbo-dev \
     libssh2-dev \
+    libzip-dev \
     build-base \
     freetype-dev \
     autoconf
@@ -33,7 +34,8 @@ RUN docker-php-ext-install \
     pdo_mysql \
     pgsql \
     pdo_pgsql \
-    sockets
+    sockets \
+    zip
 
 RUN docker-php-ext-enable \
     ssh2
