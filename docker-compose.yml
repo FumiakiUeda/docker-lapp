@@ -10,13 +10,10 @@ services:
       - ./web/httpd.conf:/etc/httpd/conf/httpd.conf
       - ./web/logs:/var/log/httpd
       - ./web/conf.d:/etc/httpd/conf.d
-      - ./web/startup.sh:/startup.sh
       - ./cert/server.crt:/etc/pki/tls/certs/localhost.crt
       - ./cert/server.key:/etc/pki/tls/private/localhost.key
       - ${HOME_DIR:-G:\MUS\home}:/home
       - ${HTML_DIR:-G:\MUS\var\www\html}:/var/www/html
-      - ${SMARTY_DIR:-G:\MUS\usr\lib64\php\pear\smarty}:/usr/lib64/php/pear/smarty
-      - ${SHAREPHP_DIR:-G:\MUS\usr\share\php}:/usr/share/php
     environment:
       TZ: Asia/Tokyo
     depends_on:
@@ -32,8 +29,6 @@ services:
       - ./app/www.conf:/usr/local/etc/php-fpm.d/www.conf
       - ${HOME_DIR:-G:\MUS\home}:/home
       - ${HTML_DIR:-G:\MUS\var\www\html}:/var/www/html
-      - ${SMARTY_DIR:-G:\MUS\usr\lib64\php\pear\smarty}:/usr/lib64/php/pear/smarty
-      - ${SHAREPHP_DIR:-G:\MUS\usr\share\php}:/usr/share/php
     environment:
       TZ: Asia/Tokyo
 
@@ -56,7 +51,7 @@ services:
     volumes:
       - ./pgadmin4-data:/var/lib/pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-demo.digicon@topcreation.co.jp}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASS:-adminmin}
       TZ: Asia/Tokyo
     depends_on:

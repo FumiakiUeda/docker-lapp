@@ -8,8 +8,6 @@
 |HTTPS_PUBLISHED_PORT|ApacheにHTTPSアクセスするためポート番号|`443`|〃|
 |HOME_DIR|ホストマシン上でhomeファイルを配置している場所|`G:\MUS\home`|コンテナ内へマウントされる|
 |HTML_DIR|ホストマシン上でhtmlファイルを配置している場所|`G:\MUS\var\www\html`|〃|
-|SMARTY_DIR|ホストマシン上でSmartyファイルを配置している場所|`G:\MUS\usr\lib64\php\pear\smarty`|〃|
-|SHAREPHP_DIR|ホストマシン上でshare/phpファイルを配置している場所|`G:\MUS\usr\share\php`|中身が空でもOK|
 
 ## PostgreSQL関係
 
@@ -23,7 +21,7 @@
 |変数|意味|デフォルト|備考|
 |--|--|--|--|
 |PGADMIN_PUBLISHED_PORT|pgAdmin4へアクセスするためのポート番号|`8080`|ホストマシンへ転送されるポート番号|
-|PGADMIN_DEFAULT_EMAIL|pgAdmin4の初期ユーザー名|`demo.digicon@topcreation.co.jp`||
+|PGADMIN_DEFAULT_EMAIL|pgAdmin4の初期ユーザー名|`admin@example.com`||
 |PGADMIN_DEFAULT_PASS|pgAdmin4の初期ユーザーPW|`adminmin`||
 
 ## FTPサーバー関係
