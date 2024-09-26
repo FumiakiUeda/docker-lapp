@@ -28,7 +28,7 @@
 failed to solve: almalinux:9: failed to authorize: failed to fetch oauth token: Post "https://auth.docker.io/token": dial tcp 54.198.86.24:443: connectex: No connection could be made because the target machine actively refused it.
 ```
 
-このエラーはプロキシ環境に起因するものであり、通常であればDocker Desktopにプロキシの設定を入れることで解決できるはずなのだが、UHB回線ではどうやら難しい模様である。
+このエラーはプロキシ環境に起因するものであり、通常であればDocker Desktopにプロキシの設定を入れることで解決できるはずなのだが、社内回線等でプロキシサーバーを使用している場合どうやら上手くいかない場合がある。
 
 諸々調べた結果、根本的な解決ではないが、エラーになったイメージを以下のように事前にプルしておくことで回避が可能。
 
@@ -53,7 +53,7 @@ docker compose up -d
 
 ## コンテナ間の通信をしたい
 
-DC-MAXsではFTPの設定があるため、configファイルにFTP接続先を指定するかと思うが、コンテナ同士の通信は動的なローカルIPアドレスで行われているため、FTPホストをどこに向ければいいのかと戸惑うかもしれない。
+開発しているアプリにFTP機能やメール機能等がある場合、envファイル等にホスト接続先を指定するかと思うが、コンテナ同士の通信は動的なローカルIPアドレスで行われているため、ホストをどこに向ければいいのかと戸惑うかもしれない。
 
 これについては、コンテナのサービス名を記載すれば動的に別のコンテナに通信するような仕組みになっている。
 
@@ -61,14 +61,12 @@ DC-MAXsではFTPの設定があるため、configファイルにFTP接続先を�
 
 例えば、PHPコンテナからFTPサーバーコンテナへFTPを行う場合、ホスト名は`ftpsrv`と指定すれば`ftpsrv`というホスト名を`172.25.0.6`などのローカルIPに名前解決してくれる。
 
-configファイルの記載例
-```php
-/**ローカル アドレス */
-define('YAHOO_FTP_HOST', 'ftpsrv');
-/**ローカル ユーザ */
-define('YAHOO_FTP_USER', 'ftpusr');
-/**ローカル パスワード */
-define('YAHOO_FTP_PASS', 'adminmin');
+envファイルの記載例
+
+```ini
+FTP_HOST=ftpsrv
+FTP_USER=ftpusr
+FTP_PASS=adminmin
 ```
 
 ※ホストマシンからは名前解決できないため、例えばホストマシンから`ftpsrv`コンテナへアクセスしたい場合は、ホスト名に`localhost`を指定し、envファイルで設定したポート番号を通してコンテナにアクセスすることとなる。
