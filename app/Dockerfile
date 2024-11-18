@@ -14,6 +14,7 @@ RUN apk update \
     git \
     vim \
     zlib-dev \
+    php8-bcmath \
     libpng-dev \
     libpq-dev \
     libjpeg-turbo-dev \
@@ -29,6 +30,7 @@ RUN docker-php-ext-configure \
     gd --with-freetype --with-jpeg
 
 RUN docker-php-ext-install \
+    bcmath \
     gd \
     mysqli \
     pdo_mysql \
